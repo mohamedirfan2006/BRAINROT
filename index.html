@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Bootstrap CSS -->
+     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+
+    <!-- Main CSS -->
+      <link rel="stylesheet" href="style.css">
+
+    <!-- Profile CSS -->
+        <link rel="stylesheet" href="profile.css">
+
+    <!-- favicon -->
+       <link rel="shortcut icon" href="Images/favicon.png" type="image/x-icon">
+    <title>BRAINROT</title>
+</head>
+<body>
+    <header>
+
+        <!-- Navbar -->
+
+
+            <!-- <nav class="navbar navbar-expand-lg fixed-top"> -->
+            <nav class="navbar navbar-expand-lg">
+                <div class="container-fluid">
+                    <a class="navbar-brand me-auto" href="#">BRAINROT</a>
+                    <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar"
+                        aria-labelledby="offcanvasNavbarLabel">
+                        <div class="offcanvas-header">
+                            <h5 class="offcanvas-title" id="offcanvasNavbarLabel">Offcanvas</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                        </div>
+                        <div class="offcanvas-body">
+                            <ul class="navbar-nav justify-content-center  flex-grow-1 pe-3">
+                                <li class="nav-item">
+                                    <a class="nav-link active mx-lg-2" aria-current="page" href="#">Home</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link mx-lg-2" href="#game">Games</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link mx-lg-2" href="#habit">Habit Tracker</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link mx-lg-2" href="#">About</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <a href="#" class="login-button">Tracker</a>
+                    <button class="navbar-toggler pe-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                </div>
+            </nav>
+
+
+
+
+        <!-- Background -->
+        <div class="bg"></div>
+
+        <!-- main -->
+        <section class="main">
+
+                <!-- Title -->
+                <div class="title ">
+                    <h1>Brain</h1>
+                    <h1>Rot.</h1>
+                </div>
+
+                <!-- <div class="profile">
+                    <div>
+                    <img src="Images/favicon.png" alt="">
+                    </div>
+                </div> -->
+           
+        </section>
+
+        <!-- games -->
+        <section id="game" class="game">
+
+            <h2 class="game-title">Games</h2>
+            <!-- Application Cards -->
+            <div class="card-container">
+
+                <!-- Card-1 -->
+                <div class="card">
+                    <img src="Images/card-1.png" alt="" class="src">
+                    <div class="card-content">
+                        <h3>Matching Quiz</h3>
+                        <p>Matching Quiz challenges players to pair questions with correct answers across genres like science, history, movies, and sports. Score points for accurate matches and test knowledge interactively!</p>
+                        <a href="games/matching quiz.html" class="btn btn-primary">Open</a>
+                    </div>
+                </div>
+
+                <!-- Card-2 -->
+                <div class="card">
+                    <img src="Images/card-2.png" alt="" class="src">
+                    <div class="card-content">
+                        <h3>Learn & Snake</h3>
+                        <p>Snake Quiz Adventure combines the classic snake game with interactive quizzes. Eat food, grow longer, and answer trivia every 5 meals. Score rewards for correct answers!</p>
+                        <a href="games/dynamic_snake_quiz.html" class="btn btn-primary">Open</a>
+                    </div>
+                </div>
+
+                <!-- Card-3 -->
+                <div class="card">
+                    <img src="Images/card-3.png" alt="" class="src">
+                    <div class="card-content">
+                        <h3>Memory Puzzle</h3>
+                        <p>Brain Challenge combines a fast-paced quiz with a memory puzzle. Answer trivia, flip cards to find pairs, and earn the highest score through knowledge, focus, and strategy.</p>
+                        <a href="games/memory_puzzle.html" class="btn btn-primary">Open</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </header>
+
+    <main>
+
+        <section id="habit">
+            <h2 class="habit-title">Habit Tracker</h2>
+            <iframe src="tracker/habit_tracker_base.html" frameborder="0" height="1750px" width="100%" scrolling="no"></iframe>
+        </section>
+        
+    </main>
+
+
+
+
+
+    <!-- Bootstrap Java Script -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+
+</body>
+</html>

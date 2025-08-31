@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="shortcut icon" href="../Images/favicon.png" type="image/x-icon">
+<title>Snake Game | BRAINROT </title>
+<style>
+  /* Reset and base */
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  body {
+    background: #1a1a1a;
+    font-family: 'Arial', sans-serif;
+    color: #fff;
+    user-select: none;
+    overflow: hidden;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  #game-container {
+    position: relative;
+    max-width: 500px;
+    text-align: center;
+  }
+  #scoreboard {
+    font-size: 1.4rem;
+    margin-bottom: 15px;
+    background: #2d4f3d;
+    padding: 12px 20px;
+    border-radius: 25px;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    border: 2px solid #4CAF50;
+  }
+  canvas {
+    background: #0d1b1d;
+    display: block;
+    margin: 0 auto;
+    border-radius: 10px;
+    border: 3px solid #4CAF50;
+  }
+  /* Controls */
+  .controls {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+  }
+  .control-btn {
+    background: #2d4f3d;
+    border: 2px solid #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: bold;
+    transition: all 0.2s ease;
+  }
+  .control-btn:hover {
+    background: #4CAF50;
+    transform: translateY(-2px);
+  }
+  /* Quiz popup */
+  #quiz-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: 420px;
+    max-width: 90vw;
+    background: #1e3b29;
+    border: 3px solid #4CAF50;
+    border-radius: 15px;
+    padding: 20px;
+    transform: translate(-50%, -50%);
+    z-index: 100;
+    display: none;
+  }
+  #quiz-popup h2 {
+    font-size: 1.3rem;
+    margin-bottom: 20px;
+    color: #fff;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    line-height: 1.4;
+  }
+  .quiz-option {
+    background: #2d4f3d;
+    border: 2px solid #4CAF50;
+    color: #fff;
+    padding: 12px;
+    margin: 8px 0;
+    cursor: pointer;
+    font-size: 1rem;
+    text-align: left;
+    border-radius: 10px;
+    transition: all 0.2s ease;
+    width: 100%;
+    line-height: 1.3;
+  }
+  .quiz-option:hover {
+    background: #4CAF50;
+  }
+  .quiz-option:disabled {
+    background: #666;
+    border-color: #888;
+    cursor: not-allowed;
+  }
+  /* Game Over overlay */
+  #game-over {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: 380px;
+    max-width: 90vw;
+    background: #2d1e1e;
+    border: 3px solid #ff4444;
+    border-radius: 15px;
+    padding: 25px;
+    transform: translate(-50%, -50%);
+    z-index: 200;
+    display: none;
+    color: #fff;
+  }
+  #game-over h1 {
+    margin: 0 0 20px 0;
+    font-size: 2rem;
+    color: #ff6b6b;
+  }
+  #game-over button {
+    background: #cc0000;
+    border: 2px solid #ff4444;
+    color: white;
+    padding: 12px 25px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    border-radius: 20px;
+    transition: all 0.2s ease;
+    margin-top: 20px;
+  }
+  #game-over button:hover {
+    background: #ff4444;
+  }
+  /* Start Screen */
+  #start-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #1a1a1a;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 300;
+    gap: 25px;
+  }
+  #start-screen h1 {
+    font-size: 2.5rem;
+    color: #4CAF50;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+    margin-bottom: 15px;
+  }
+  #start-screen p {
+    font-size: 1.1rem;
+    color: #ccc;
+    max-width: 450px;
+    text-align: center;
+    line-height: 1.5;
+  }
+  #topic-selector {
+    margin: 20px 0;
+  }
+  #topic-selector select {
+    background: #2d4f3d;
+    border: 2px solid #4CAF50;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 10px;
+    font-size: 1rem;
+  }
+  #start-btn {
+    background: #2d4f3d;
+    border: 2px solid #4CAF50;
+    color: white;
+    padding: 15px 30px;
+    font-size: 1.3rem;
+    cursor: pointer;
+    border-radius: 25px;
+    transition: all 0.2s ease;
+  }
+  #start-btn:hover {
+    background: #4CAF50;
+    transform: translateY(-2px);
+  }
+  #start-btn:disabled {
+    background: #666;
+    border-color: #888;
+    cursor: not-allowed;
+    transform: none;
+  }
+  /* Instructions */
+  .instructions {
+    margin-top: 15px;
+    font-size: 0.9rem;
+    color: #4CAF50;
+  }
+  .loading {
+    color: #ffa500;
+    font-style: italic;
+  }
+</style>
+</head>
+<body>
+
+<div id="start-screen">
+  <h1>🐍 Snake Quiz Adventure</h1>
+  <p>Control your snake with arrow keys. Eat food to grow and answer quiz questions every 5 meals. Score points for correct answers!</p>
+  
+  <div id="topic-selector">
+    <label for="quiz-topic">Choose Quiz Topic:</label>
+    <select id="quiz-topic">
+      <option value="18">Computer Science</option>
+      <option value="19">Science & Math</option>
+      <option value="17">Science & Nature</option>
+      <option value="9">General Knowledge</option>
+      <option value="21">Sports</option>
+      <option value="22">Geography</option>
+      <option value="23">History</option>
+    </select>
+  </div>
+  
+  <button id="start-btn">Start Game</button>
+  <div class="loading" id="loading-status" style="display: none;">Loading questions...</div>
+</div>
+
+<div id="game-container">
+  <div id="scoreboard">Score: 0</div>
+  <canvas id="game" width="500" height="500" tabindex="0"></canvas>
+  <div class="controls">
+    <button class="control-btn" id="pause-btn">Pause</button>
+    <button class="control-btn" id="restart-game-btn">Restart</button>
+    <button class="control-btn" id="load-questions-btn">Load New Questions</button>
+    <a href="../index.html"><h1 class="control-btn" id="home">Home</h1></a>
+
+  </div>
+  <div class="instructions">Use arrow keys to control the snake. Borders wrap around!</div>
+</div>
+
+<div id="quiz-popup" role="dialog" aria-modal="true" aria-labelledby="quiz-question">
+  <h2 id="quiz-question">Question?</h2>
+  <div id="quiz-options">
+    <!-- Buttons inserted by JS -->
+  </div>
+</div>
+
+<div id="game-over" role="alertdialog" aria-modal="true" aria-labelledby="game-over-title">
+  <h1 id="game-over-title">Game Over</h1>
+  <p id="final-score">Your final score: 0</p>
+  <button id="restart-btn">Play Again</button>
+</div>
+
+<script>
+(() => {
+  // Constants
+  const canvas = document.getElementById('game');
+  const ctx = canvas.getContext('2d');
+  const scoreboard = document.getElementById('scoreboard');
+  const quizPopup = document.getElementById('quiz-popup');
+  const quizQuestionEl = document.getElementById('quiz-question');
+  const quizOptionsEl = document.getElementById('quiz-options');
+  const gameOverEl = document.getElementById('game-over');
+  const finalScoreEl = document.getElementById('final-score');
+  const restartBtn = document.getElementById('restart-btn');
+  const startScreen = document.getElementById('start-screen');
+  const startBtn = document.getElementById('start-btn');
+  const pauseBtn = document.getElementById('pause-btn');
+  const restartGameBtn = document.getElementById('restart-game-btn');
+  const loadQuestionsBtn = document.getElementById('load-questions-btn');
+  const topicSelector = document.getElementById('quiz-topic');
+  const loadingStatus = document.getElementById('loading-status');
+
+  const gridSize = 20;
+  const tileCount = canvas.width / gridSize;
+
+  // Game state
+  let snake = [];
+  let direction = { x: 1, y: 0 };
+  let food = { x: 0, y: 0 };
+  let score = 10;
+  let ballsEaten = 0;
+  let gameInterval = null;
+  let gameSpeed = 120;
+  let isPaused = false;
+  let quizIndex = 0;
+  let snakePattern = [];
+  let quizQuestions = [];
+  let selectedTopic = "18";
+
+  // Create snake scale pattern
+  function createSnakePattern() {
+    const pattern = [];
+    for (let i = 0; i < 15; i++) {
+      pattern.push({
+        x: Math.random() * 8,
+        y: Math.random() * 8,
+        size: Math.random() * 2 + 1,
+        color: `hsl(${60 + Math.random() * 15}, ${70 + Math.random() * 15}%, ${40 + Math.random() * 15}%)`
+      });
+    }
+    return pattern;
+  }
+
+  // Fetch questions from Open Trivia Database
+  async function fetchQuestions(category = "18", amount = 20) {
+    try {
+      loadingStatus.style.display = 'block';
+      startBtn.disabled = true;
+      startBtn.textContent = 'Loading...';
+      
+      const response = await fetch(`https://opentdb.com/api.php?amount=${amount}&category=${category}&type=multiple&encode=url3986`);
+      const data = await response.json();
+      
+      if (data.response_code === 0 && data.results.length > 0) {
+        quizQuestions = data.results.map(q => {
+          // Decode URL encoding
+          const question = decodeURIComponent(q.question);
+          const correctAnswer = decodeURIComponent(q.correct_answer);
+          const incorrectAnswers = q.incorrect_answers.map(a => decodeURIComponent(a));
+          
+          // Shuffle answers and create options object
+          const allAnswers = [correctAnswer, ...incorrectAnswers];
+          const shuffledAnswers = allAnswers.sort(() => Math.random() - 0.5);
+          
+          const options = {};
+          const letters = ['A', 'B', 'C', 'D'];
+          let correctKey = '';
+          
+          shuffledAnswers.forEach((answer, index) => {
+            options[letters[index]] = answer;
+            if (answer === correctAnswer) {
+              correctKey = letters[index];
+            }
+          });
+          
+          return {
+            question: question,
+            options: options,
+            correctAnswer: correctKey
+          };
+        });
+        
+        console.log(`Loaded ${quizQuestions.length} questions`);
+        return true;
+      } else {
+        throw new Error('No questions received from API');
+      }
+    } catch (error) {
+      console.error('Error fetching questions:', error);
+      // Fallback to default HTML questions
+      quizQuestions = getDefaultQuestions();
+      alert('Could not load online questions. Using default HTML questions.');
+      return false;
+    } finally {
+      loadingStatus.style.display = 'none';
+      startBtn.disabled = false;
+      startBtn.textContent = 'Start Game';
+    }
+  }
+
+  // Default fallback questions (your original HTML questions)
+  function getDefaultQuestions() {
+    return [
+      {
+        question: "What does HTML stand for?",
+        options: { A: "Hyper Trainer Marking Language", B: "Hyperlinks and Text Markup Language", C: "Hyper Text Markup Language", D: "Home Tool Markup Language" },
+        correctAnswer: "C"
+      },
+      {
+        question: "Which tag is used to create a hyperlink in HTML?",
+        options: { A: "<a>", B: "<href>", C: "<link>", D: "<h1>" },
+        correctAnswer: "A"
+      },
+      {
+        question: "Which tag is used to insert an image in HTML?",
+        options: { A: "<img>", B: "<image>", C: "<Src>", D: "<picture>" },
+        correctAnswer: "A"
+      },
+      {
+        question: "Which HTML element is used to display the largest heading?",
+        options: { A: "<h6>", B: "<Heading>", C: "<h1>", D: "<head>" },
+        correctAnswer: "C"
+      },
+      {
+        question: "Which tag is used to create a line break in HTML?",
+        options: { A: "<break>", B: "<lb>", C: "<br>", D: "<newline>" },
+        correctAnswer: "C"
+      }
+    ];
+  }
+
+  // Alternative: Fetch from a custom JSON source
+  async function fetchCustomQuestions(topic = 'html') {
+    try {
+      // Example using a hypothetical custom API or JSON file
+      const response = await fetch(`https://your-server.com/api/questions?topic=${topic}&count=20`);
+      const data = await response.json();
+      return data.questions;
+    } catch (error) {
+      console.error('Error fetching custom questions:', error);
+      return getDefaultQuestions();
+    }
+  }
+
+  // Alternative: Generate questions using AI API (example with OpenAI-style API)
+  async function generateQuestionsWithAI(topic = 'HTML', count = 10) {
+    try {
+      const prompt = `Generate ${count} multiple choice questions about ${topic} programming. Return as JSON array with format: [{"question": "...", "options": {"A": "...", "B": "...", "C": "...", "D": "..."}, "correctAnswer": "A"}]`;
+      
+      // This would require your API key and proper CORS setup
+      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer YOUR_API_KEY'
+        },
+        body: JSON.stringify({
+          model: 'gpt-3.5-turbo',
+          messages: [{ role: 'user', content: prompt }],
+          max_tokens: 2000
+        })
+      });
+      
+      const data = await response.json();
+      return JSON.parse(data.choices[0].message.content);
+    } catch (error) {
+      console.error('Error generating AI questions:', error);
+      return getDefaultQuestions();
+    }
+  }
+
+  // Initialize game
+  function init() {
+    snake = [
+      { x: 8, y: 10 },
+      { x: 7, y: 10 },
+      { x: 6, y: 10 }
+    ];
+    direction = { x: 1, y: 0 };
+    score = 10;
+    ballsEaten = 0;
+    quizIndex = 0;
+    isPaused = false;
+    snakePattern = createSnakePattern();
+    spawnFood();
+    updateScore();
+    hideGameOver();
+    hideQuiz();
+    if (gameInterval) clearInterval(gameInterval);
+    gameInterval = setInterval(gameLoop, gameSpeed);
+  }
+
+  // Draw realistic snake
+  function drawSnake() {
+    // Draw snake body with scales
+    for (let i = 0; i < snake.length; i++) {
+      const s = snake[i];
+      const progress = i / snake.length;
+      
+      // Body color gradient
+      const bodyColor = `hsl(${60 + progress * 15}, 70%, ${50 - progress * 15}%)`;
+      ctx.fillStyle = bodyColor;
+      
+      ctx.beginPath();
+      ctx.ellipse(
+        s.x * gridSize + gridSize/2,
+        s.y * gridSize + gridSize/2,
+        gridSize/2 - 2,
+        gridSize/2 - 2,
+        0, 0, Math.PI * 2
+      );
+      ctx.fill();
+      
+      // Draw scales pattern (skip head)
+      if (i > 0) {
+        snakePattern.forEach(scale => {
+          ctx.fillStyle = scale.color;
+          ctx.beginPath();
+          ctx.arc(
+            s.x * gridSize + scale.x,
+            s.y * gridSize + scale.y,
+            scale.size * (1 - progress * 0.3),
+            0, Math.PI * 2
+          );
+          ctx.fill();
+        });
+      }
+    }
+    
+    // Draw snake head with eyes
+    const head = snake[0];
+    
+    // Head
+    ctx.fillStyle = '#4CAF50';
+    ctx.beginPath();
+    ctx.ellipse(
+      head.x * gridSize + gridSize/2,
+      head.y * gridSize + gridSize/2,
+      gridSize/2 + 2,
+      gridSize/2 + 2,
+      Math.atan2(direction.y, direction.x),
+      0, Math.PI * 2
+    );
+    ctx.fill();
+    
+    // Eyes
+    const eyeOffset = 5;
+    const eyeSize = 3;
+    ctx.fillStyle = '#000';
+    
+    ctx.beginPath();
+    ctx.arc(
+      head.x * gridSize + gridSize/2 - direction.y * eyeOffset,
+      head.y * gridSize + gridSize/2 + direction.x * eyeOffset,
+      eyeSize, 0, Math.PI * 2
+    );
+    ctx.fill();
+    
+    ctx.beginPath();
+    ctx.arc(
+      head.x * gridSize + gridSize/2 + direction.y * eyeOffset,
+      head.y * gridSize + gridSize/2 - direction.x * eyeOffset,
+      eyeSize, 0, Math.PI * 2
+    );
+    ctx.fill();
+  }
+
+  // Draw food
+  function drawFood() {
+    ctx.fillStyle = '#ff6b6b';
+    const centerX = food.x * gridSize + gridSize / 2;
+    const centerY = food.y * gridSize + gridSize / 2;
+    const radius = gridSize / 2 - 2;
+    
+    // Simple pulsating effect
+    const pulseSize = radius * (0.9 + 0.1 * Math.sin(Date.now() / 200));
+    
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, pulseSize, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // Draw everything
+  function draw() {
+    // Clear canvas with solid color
+    ctx.fillStyle = '#0d1b1d';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // Draw subtle grid
+    ctx.strokeStyle = 'rgba(76, 175, 80, 0.1)';
+    ctx.lineWidth = 1;
+    for (let i = 0; i <= tileCount; i++) {
+      ctx.beginPath();
+      ctx.moveTo(i * gridSize, 0);
+      ctx.lineTo(i * gridSize, canvas.height);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(0, i * gridSize);
+      ctx.lineTo(canvas.width, i * gridSize);
+      ctx.stroke();
+    }
+    
+    drawFood();
+    drawSnake();
+  }
+
+  // Game loop
+  function gameLoop() {
+    if (isPaused) return;
+
+    moveSnake();
+    if (checkCollision()) {
+      endGame();
+      return;
+    }
+    if (checkFood()) {
+      ballsEaten++;
+      score += 1;
+      updateScore();
+      growSnake();
+      spawnFood();
+
+      if (ballsEaten % 5 === 0) {
+        pauseGame();
+        showQuiz();
+      }
+    }
+    if (score <= 0) {
+      endGame();
+      return;
+    }
+    draw();
+  }
+
+  // Move snake by adding new head and removing tail
+  function moveSnake() {
+    const head = snake[0];
+    
+    // Create new head position with wrap-around logic
+    let newX = head.x + direction.x;
+    let newY = head.y + direction.y;
+    
+    // Wrap around the edges
+    if (newX < 0) newX = tileCount - 1;
+    if (newX >= tileCount) newX = 0;
+    if (newY < 0) newY = tileCount - 1;
+    if (newY >= tileCount) newY = 0;
+    
+    const newHead = { x: newX, y: newY };
+    snake.unshift(newHead);
+    snake.pop();
+  }
+
+  // Grow snake by adding a segment at tail (duplicate last segment)
+  function growSnake() {
+    const tail = snake[snake.length - 1];
+    snake.push({ x: tail.x, y: tail.y });
+  }
+
+  // Check collision with self only (no wall collision)
+  function checkCollision() {
+    const head = snake[0];
+    
+    // Self collision (only check from 1 onward to exclude head)
+    for (let i = 1; i < snake.length; i++) {
+      if (snake[i].x === head.x && snake[i].y === head.y) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  // Check if snake head is on food
+  function checkFood() {
+    const head = snake[0];
+    return head.x === food.x && head.y === food.y;
+  }
+
+  // Spawn food in random position not occupied by snake
+  function spawnFood() {
+    let valid = false;
+    let x, y;
+    while (!valid) {
+      x = Math.floor(Math.random() * tileCount);
+      y = Math.floor(Math.random() * tileCount);
+      valid = true;
+      for (const s of snake) {
+        if (s.x === x && s.y === y) {
+          valid = false;
+          break;
+        }
+      }
+    }
+    food = { x, y };
+  }
+
+  // Update score display
+  function updateScore() {
+    scoreboard.textContent = `Score: ${score}`;
+  }
+
+  // Pause game
+  function pauseGame() {
+    isPaused = true;
+  }
+
+  // Resume game
+  function resumeGame() {
+    isPaused = false;
+  }
+
+  // Show quiz popup
+  function showQuiz() {
+    if (quizIndex >= quizQuestions.length) {
+      // If no more questions, load more or cycle through
+      quizIndex = 0;
+      if (quizQuestions.length === 0) {
+        resumeGame();
+        return;
+      }
+    }
+    
+    const q = quizQuestions[quizIndex];
+    quizQuestionEl.textContent = q.question;
+    quizOptionsEl.innerHTML = '';
+    
+    for (const [key, text] of Object.entries(q.options)) {
+      const btn = document.createElement('button');
+      btn.className = 'quiz-option';
+      btn.textContent = `${key}: ${text}`;
+      btn.dataset.answer = key;
+      btn.addEventListener('click', onAnswerSelected);
+      quizOptionsEl.appendChild(btn);
+    }
+    quizPopup.style.display = 'block';
+  }
+
+  // Hide quiz popup
+  function hideQuiz() {
+    quizPopup.style.display = 'none';
+  }
+
+  // Handle answer selection
+  function onAnswerSelected(e) {
+    const selected = e.currentTarget.dataset.answer;
+    const correct = quizQuestions[quizIndex].correctAnswer;
+    
+    // Disable all buttons to prevent multiple clicks
+    const allOptions = document.querySelectorAll('.quiz-option');
+    allOptions.forEach(btn => btn.disabled = true);
+    
+    if (selected === correct) {
+      score += 5;
+      e.currentTarget.style.background = '#4CAF50';
+    } else {
+      score -= 3;
+      e.currentTarget.style.background = '#ff4444';
+      // Show correct answer
+      allOptions.forEach(btn => {
+        if (btn.dataset.answer === correct) {
+          btn.style.background = '#4CAF50';
+        }
+      });
+    }
+    
+    updateScore();
+    quizIndex++;
+    
+    // Show result for 1.5 seconds then continue
+    setTimeout(() => {
+      hideQuiz();
+      if (score <= 0) {
+        endGame();
+        return;
+      }
+      resumeGame();
+    }, 1500);
+  }
+
+  // End game
+  function endGame() {
+    clearInterval(gameInterval);
+    isPaused = true;
+    finalScoreEl.textContent = `Your final score: ${score}`;
+    gameOverEl.style.display = 'block';
+  }
+
+  // Hide game over
+  function hideGameOver() {
+    gameOverEl.style.display = 'none';
+  }
+
+  // Hide start screen
+  function hideStartScreen() {
+    startScreen.style.display = 'none';
+  }
+
+  // Load questions based on selected topic
+  async function loadQuestionsByTopic() {
+    selectedTopic = topicSelector.value;
+    await fetchQuestions(selectedTopic);
+    quizIndex = 0;
+  }
+
+  // Event listeners
+  startBtn.addEventListener('click', async () => {
+    selectedTopic = topicSelector.value;
+    await fetchQuestions(selectedTopic);
+    hideStartScreen();
+    init();
+    canvas.focus();
+  });
+
+  restartBtn.addEventListener('click', () => {
+    hideGameOver();
+    init();
+    canvas.focus();
+  });
+
+  pauseBtn.addEventListener('click', () => {
+    isPaused = !isPaused;
+    pauseBtn.textContent = isPaused ? 'Resume' : 'Pause';
+  });
+
+  restartGameBtn.addEventListener('click', () => {
+    if (gameInterval) clearInterval(gameInterval);
+    init();
+    canvas.focus();
+  });
+
+  loadQuestionsBtn.addEventListener('click', async () => {
+    pauseGame();
+    await loadQuestionsByTopic();
+    alert(`Loaded new questions for ${topicSelector.options[topicSelector.selectedIndex].text}!`);
+    resumeGame();
+  });
+
+  // Keyboard input
+  window.addEventListener('keydown', e => {
+    if (isPaused) return;
+    switch (e.key) {
+      case 'ArrowUp':
+        if (direction.y === 1) break;
+        direction = { x: 0, y: -1 };
+        break;
+      case 'ArrowDown':
+        if (direction.y === -1) break;
+        direction = { x: 0, y: 1 };
+        break;
+      case 'ArrowLeft':
+        if (direction.x === 1) break;
+        direction = { x: -1, y: 0 };
+        break;
+      case 'ArrowRight':
+        if (direction.x === -1) break;
+        direction = { x: 1, y: 0 };
+        break;
+      case ' ':
+        isPaused = !isPaused;
+        pauseBtn.textContent = isPaused ? 'Resume' : 'Pause';
+        break;
+    }
+  });
+
+  // Initialize with default questions
+  quizQuestions = getDefaultQuestions();
+
+  // Focus canvas on load for keyboard control
+  window.addEventListener('load', () => {
+    canvas.focus();
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,517 @@
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="shortcut icon" href="../Images/favicon.png" type="image/x-icon">
+  <title>Match Puzzle | BRAINROT </title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+  />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap"
+    rel="stylesheet"
+  />
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+    }
+    /* Hide scrollbar for horizontal scroll container */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    /* Selected highlight */
+    .selected {
+      outline: 3px solid #fbbf24; /* yellow-400 */
+      outline-offset: 2px;
+      z-index: 5;
+      position: relative;
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 min-h-screen flex flex-col items-center p-4 relative overflow-x-hidden">
+  <header class="w-full max-w-6xl mb-6">
+    <h1 class="text-4xl md:text-5xl font-extrabold text-white text-center drop-shadow-lg mb-2">
+      🎯 Matching Quiz
+    </h1>
+    <p class="text-center text-indigo-200 max-w-xl mx-auto text-lg md:text-xl font-medium drop-shadow-md">
+      Select a genre, then match each question to its correct answer by clicking one, then the other. Earn points for every correct match!
+    </p>
+  </header>
+
+  <section class="w-full max-w-6xl bg-white/10 rounded-3xl p-6 md:p-10 shadow-lg backdrop-blur-md border border-white/20 mb-8">
+    <h2 class="text-2xl font-semibold text-white mb-4 text-center">Choose a Genre</h2>
+    <div class="flex flex-wrap justify-center gap-4">
+      <button
+        data-genre="science"
+        class="genre-btn bg-gradient-to-r from-green-400 to-blue-500 hover:from-green-500 hover:to-blue-600 text-white font-semibold px-6 py-3 rounded-full shadow-lg transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-green-300"
+        aria-label="Select Science genre"
+      >
+        <i class="fas fa-atom mr-2"></i> Science
+      </button>
+      <button
+        data-genre="history"
+        class="genre-btn bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-white font-semibold px-6 py-3 rounded-full shadow-lg transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-yellow-300"
+        aria-label="Select History genre"
+      >
+        <i class="fas fa-landmark mr-2"></i> History
+      </button>
+      <button
+        data-genre="movies"
+        class="genre-btn bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-semibold px-6 py-3 rounded-full shadow-lg transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-pink-300"
+        aria-label="Select Movies genre"
+      >
+        <i class="fas fa-film mr-2"></i> Movies
+      </button>
+      <button
+        data-genre="sports"
+        class="genre-btn bg-gradient-to-r from-red-500 to-yellow-400 hover:from-red-600 hover:to-yellow-500 text-white font-semibold px-6 py-3 rounded-full shadow-lg transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-red-300"
+        aria-label="Select Sports genre"
+      >
+        <i class="fas fa-football-ball mr-2"></i> Sports
+      </button>
+    </div>
+  </section>
+
+  <section
+    id="gameSection"
+    class="w-full max-w-6xl bg-white/20 rounded-3xl p-6 md:p-10 shadow-lg backdrop-blur-md border border-white/30 hidden relative"
+    aria-live="polite"
+  >
+    <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-6">
+      <h2 class="text-3xl font-bold text-white flex items-center gap-3">
+        <i class="fas fa-question-circle text-yellow-300"></i>
+        <span id="genreTitle">Genre</span> Quiz
+      </h2>
+      <div class="text-white text-xl font-semibold select-none">
+        Score: <span id="score">0</span> pts
+      </div>
+      <button
+        id="resetBtn"
+        class="bg-red-600 hover:bg-red-700 text-white font-semibold px-5 py-2 rounded-full shadow-lg transition-colors focus:outline-none focus:ring-4 focus:ring-red-400 flex items-center gap-2"
+        aria-label="Reset game"
+      >
+        <i class="fas fa-redo-alt"></i> Reset
+      </button>
+    </div>
+
+    <div class="flex flex-col md:flex-row justify-between gap-8">
+      <div
+        id="questionsContainer"
+        class="w-full md:w-1/2 bg-white/30 rounded-2xl p-6 shadow-inner max-h-[480px] overflow-y-auto no-scrollbar"
+        aria-label="Questions list"
+      >
+        <h3 class="text-xl font-semibold text-white mb-4">Questions</h3>
+        <ul id="questionsList" class="space-y-6">
+        </ul>
+      </div>
+
+      <div
+        id="answersContainer"
+        class="w-full md:w-1/2 bg-white/30 rounded-2xl p-6 shadow-inner max-h-[480px] overflow-y-auto no-scrollbar"
+        aria-label="Answers list"
+      >
+        <h3 class="text-xl font-semibold text-white mb-4">Answers</h3>
+        <ul id="answersList" class="space-y-6">
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section
+    id="resultSection"
+    class="w-full max-w-6xl bg-white/20 rounded-3xl p-6 md:p-10 shadow-lg backdrop-blur-md border border-white/30 mt-8 hidden text-center"
+    aria-live="polite"
+  >
+    <h2 class="text-3xl font-bold text-white mb-4">Game Over!</h2>
+    <p class="text-white text-xl mb-6">
+      Your final score is <span id="finalScore" class="font-extrabold text-yellow-300">0</span> points.
+    </p>
+    <button
+      id="playAgainBtn"
+      class="bg-green-600 hover:bg-green-700 text-white font-semibold px-8 py-3 rounded-full shadow-lg transition-colors focus:outline-none focus:ring-4 focus:ring-green-400"
+      aria-label="Play again"
+    >
+      Play Again
+    </button>
+  </section>
+
+  <footer class="w-full max-w-6xl mt-12 mb-6 text-center text-indigo-200 select-none">
+    <p>
+      &copy; 2024 Matching Quiz &nbsp;|&nbsp; Developed with
+      <i class="fas fa-heart text-red-500"></i> by Tailwind Expert
+    </p>
+  </footer>
+
+  <script>
+    (() => {
+      const genres = {
+        science: {
+          title: "Science",
+          questions: [
+            { id: 1, text: "What planet is known as the Red Planet?" },
+            { id: 2, text: "What gas do plants absorb from the atmosphere?" },
+            { id: 3, text: "What is the chemical symbol for water?" },
+            { id: 4, text: "What force keeps us on the ground?" },
+            { id: 5, text: "What part of the cell contains genetic material?" },
+            { id: 6, text: "What is the speed of light measured in?" },
+          ],
+          answers: [
+            { id: 1, text: "Mars" },
+            { id: 2, text: "Carbon Dioxide" },
+            { id: 3, text: "H2O" },
+            { id: 4, text: "Gravity" },
+            { id: 5, text: "Nucleus" },
+            { id: 6, text: "Meters per second" },
+          ],
+        },
+        history: {
+          title: "History",
+          questions: [
+            { id: 1, text: "Who was the first President of the United States?" },
+            { id: 2, text: "In which year did World War II end?" },
+            { id: 3, text: "What ancient civilization built the pyramids?" },
+            { id: 4, text: "Who discovered America in 1492?" },
+            { id: 5, text: "What wall divided East and West Berlin?" },
+            { id: 6, text: "Who was known as the Maid of Orleans?" },
+          ],
+          answers: [
+            { id: 1, text: "George Washington" },
+            { id: 2, text: "1945" },
+            { id: 3, text: "Egyptians" },
+            { id: 4, text: "Christopher Columbus" },
+            { id: 5, text: "Berlin Wall" },
+            { id: 6, text: "Joan of Arc" },
+          ],
+        },
+        movies: {
+          title: "Movies",
+          questions: [
+            { id: 1, text: "Who directed 'Jurassic Park'?" },
+            { id: 2, text: "What movie features the character 'Forrest Gump'?" },
+            { id: 3, text: "Which film won Best Picture in 1994?" },
+            { id: 4, text: "Who played Jack in 'Titanic'?" },
+            { id: 5, text: "What is the highest-grossing film of all time?" },
+            { id: 6, text: "Which movie is about a ring and a quest?" },
+          ],
+          answers: [
+            { id: 1, text: "Steven Spielberg" },
+            { id: 2, text: "Forrest Gump" },
+            { id: 3, text: "Forrest Gump" },
+            { id: 4, text: "Leonardo DiCaprio" },
+            { id: 5, text: "Avatar" },
+            { id: 6, text: "The Lord of the Rings" },
+          ],
+        },
+        sports: {
+          title: "Sports",
+          questions: [
+            { id: 1, text: "How many players are on a soccer team?" },
+            { id: 2, text: "Which sport uses a shuttlecock?" },
+            { id: 3, text: "Who has won the most NBA championships?" },
+            { id: 4, text: "What country hosts the Tour de France?" },
+            { id: 5, text: "What is the term for scoring three goals in hockey?" },
+            { id: 6, text: "Which sport is known as 'the king of sports'?" },
+          ],
+          answers: [
+            { id: 1, text: "11" },
+            { id: 2, text: "Badminton" },
+            { id: 3, text: "Boston Celtics" },
+            { id: 4, text: "France" },
+            { id: 5, text: "Hat trick" },
+            { id: 6, text: "Soccer" },
+          ],
+        },
+      };
+
+      // Elements
+      const genreButtons = document.querySelectorAll('.genre-btn');
+      const gameSection = document.getElementById('gameSection');
+      const questionsList = document.getElementById('questionsList');
+      const answersList = document.getElementById('answersList');
+      const genreTitle = document.getElementById('genreTitle');
+      const scoreEl = document.getElementById('score');
+      const resetBtn = document.getElementById('resetBtn');
+      const resultSection = document.getElementById('resultSection');
+      const finalScoreEl = document.getElementById('finalScore');
+      const playAgainBtn = document.getElementById('playAgainBtn');
+
+      // State
+      let currentGenre = null;
+      let score = 0;
+      let matches = []; // {questionId, answerId}
+      let correctMatches = 0;
+      let questionElements = {};
+      let answerElements = {};
+      let matchedQuestions = new Set();
+      let matchedAnswers = new Set();
+
+      // For click-to-match selection
+      let selectedQuestionId = null;
+      let selectedAnswerId = null;
+
+      // Save and load score from localStorage
+      function saveScore() {
+        if (!currentGenre) return;
+        localStorage.setItem(`score_${currentGenre}`, score);
+      }
+      function loadScore() {
+        if (!currentGenre) return 0;
+        return parseInt(localStorage.getItem(`score_${currentGenre}`)) || 0;
+      }
+
+      // Render questions and answers
+      function renderGame(genreKey) {
+        currentGenre = genreKey;
+        score = loadScore();
+        scoreEl.textContent = score;
+        correctMatches = 0;
+        matches = [];
+        matchedQuestions.clear();
+        matchedAnswers.clear();
+        selectedQuestionId = null;
+        selectedAnswerId = null;
+        genreTitle.textContent = genres[genreKey].title;
+
+        // Clear lists
+        questionsList.innerHTML = '';
+        answersList.innerHTML = '';
+
+        // Shuffle answers so they are not in order
+        const shuffledAnswers = shuffleArray(genres[genreKey].answers);
+
+        questionElements = {};
+        answerElements = {};
+
+        // Create question elements
+        genres[genreKey].questions.forEach(({ id, text }) => {
+          const li = document.createElement('li');
+          li.className =
+            'question-item cursor-pointer bg-white/90 rounded-xl p-4 shadow-md hover:shadow-xl transition-shadow relative select-none text-gray-900 font-semibold text-base md:text-lg';
+          li.setAttribute('data-id', id);
+          li.setAttribute('tabindex', '0');
+          li.setAttribute('role', 'button');
+          li.setAttribute('aria-label', `Question: ${text}`);
+          li.textContent = text;
+          questionsList.appendChild(li);
+          questionElements[id] = li;
+        });
+
+        // Create answer elements
+        shuffledAnswers.forEach(({ id, text }) => {
+          const li = document.createElement('li');
+          li.className =
+            'answer-item cursor-pointer bg-white/90 rounded-xl p-4 shadow-md hover:shadow-xl transition-shadow relative select-none text-gray-900 font-semibold text-base md:text-lg';
+          li.setAttribute('data-id', id);
+          li.setAttribute('tabindex', '0');
+          li.setAttribute('role', 'button');
+          li.setAttribute('aria-label', `Answer: ${text}`);
+          li.textContent = text;
+          answersList.appendChild(li);
+          answerElements[id] = li;
+        });
+
+        // Show game section and hide others
+        gameSection.classList.remove('hidden');
+        resultSection.classList.add('hidden');
+
+        attachClickHandlers();
+      }
+
+      // Shuffle array helper
+      function shuffleArray(arr) {
+        const array = arr.slice();
+        for (let i = array.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+      }
+
+      // Check if match is correct
+      function isCorrectMatch(questionId, answerId) {
+        return questionId === answerId;
+      }
+
+      // Clear all selections
+      function clearSelections() {
+        if (selectedQuestionId !== null) {
+          const qEl = questionElements[selectedQuestionId];
+          if (qEl) qEl.classList.remove('selected');
+          selectedQuestionId = null;
+        }
+        if (selectedAnswerId !== null) {
+          const aEl = answerElements[selectedAnswerId];
+          if (aEl) aEl.classList.remove('selected');
+          selectedAnswerId = null;
+        }
+      }
+
+      // Handle click on question or answer
+      function handleItemClick(e) {
+        const target = e.currentTarget;
+        if (target.classList.contains('question-item')) {
+          const qId = parseInt(target.dataset.id);
+          if (matchedQuestions.has(qId)) return; // already matched
+
+          if (selectedQuestionId === qId) {
+            // Deselect
+            target.classList.remove('selected');
+            selectedQuestionId = null;
+          } else {
+            // Select new question
+            if (selectedQuestionId !== null) {
+              questionElements[selectedQuestionId].classList.remove('selected');
+            }
+            selectedQuestionId = qId;
+            target.classList.add('selected');
+          }
+        } else if (target.classList.contains('answer-item')) {
+          const aId = parseInt(target.dataset.id);
+          if (matchedAnswers.has(aId)) return; // already matched
+
+          if (selectedAnswerId === aId) {
+            // Deselect
+            target.classList.remove('selected');
+            selectedAnswerId = null;
+          } else {
+            // Select new answer
+            if (selectedAnswerId !== null) {
+              answerElements[selectedAnswerId].classList.remove('selected');
+            }
+            selectedAnswerId = aId;
+            target.classList.add('selected');
+          }
+        }
+
+        // If both selected, try to match
+        if (selectedQuestionId !== null && selectedAnswerId !== null) {
+          tryMatch(selectedQuestionId, selectedAnswerId);
+        }
+      }
+
+      // Try to match selected question and answer
+      function tryMatch(qId, aId) {
+        if (matchedQuestions.has(qId) || matchedAnswers.has(aId)) {
+          clearSelections();
+          return;
+        }
+
+        if (isCorrectMatch(qId, aId)) {
+          // Correct match
+          score++;
+          scoreEl.textContent = score;
+          saveScore();
+          correctMatches++;
+          matches.push({ questionId: qId, answerId: aId });
+
+          matchedQuestions.add(qId);
+          matchedAnswers.add(aId);
+
+          const qEl = questionElements[qId];
+          const aEl = answerElements[aId];
+
+          qEl.classList.add('bg-green-400', 'text-white', 'cursor-default');
+          qEl.classList.remove('cursor-pointer', 'hover:shadow-xl');
+          qEl.setAttribute('aria-disabled', 'true');
+          aEl.classList.add('bg-green-400', 'text-white', 'cursor-default');
+          aEl.classList.remove('cursor-pointer', 'hover:shadow-xl');
+          aEl.setAttribute('aria-disabled', 'true');
+
+          clearSelections();
+
+          if (correctMatches === genres[currentGenre].questions.length) {
+            setTimeout(() => {
+              showResult();
+            }, 600);
+          }
+        } else {
+          // Wrong match flash red
+          flashWrong(questionElements[qId]);
+          flashWrong(answerElements[aId]);
+          clearSelections();
+        }
+      }
+
+      // Flash red background for wrong match
+      function flashWrong(el) {
+        if (!el) return;
+        el.classList.add('bg-red-500', 'text-white');
+        setTimeout(() => {
+          el.classList.remove('bg-red-500', 'text-white');
+        }, 700);
+      }
+
+      // Show result section
+      function showResult() {
+        finalScoreEl.textContent = score;
+        gameSection.classList.add('hidden');
+        resultSection.classList.remove('hidden');
+      }
+
+      // Event listeners for genre buttons
+      genreButtons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          renderGame(btn.dataset.genre);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+      });
+
+      // Reset button
+      resetBtn.addEventListener('click', () => {
+        if (!currentGenre) return;
+        // Clear matches
+        matches = [];
+        matchedQuestions.clear();
+        matchedAnswers.clear();
+        score = 0;
+        scoreEl.textContent = score;
+        saveScore();
+
+        // Re-render game to reset UI
+        renderGame(currentGenre);
+      });
+
+      // Play again button
+      playAgainBtn.addEventListener('click', () => {
+        if (!currentGenre) {
+          resultSection.classList.add('hidden');
+          return;
+        }
+        renderGame(currentGenre);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+
+      // Attach click handlers to questions and answers dynamically
+      function attachClickHandlers() {
+        Object.values(questionElements).forEach((el) => {
+          el.addEventListener('click', handleItemClick);
+          el.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              el.click();
+            }
+          });
+        });
+        Object.values(answerElements).forEach((el) => {
+          el.addEventListener('click', handleItemClick);
+          el.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              el.click();
+            }
+          });
+        });
+      }
+
+      // Initial focus on genre buttons for accessibility
+      genreButtons[0].focus();
+    })();
+  </script>
+</body>
+</html>

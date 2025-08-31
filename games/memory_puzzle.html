@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="../Images/favicon.png" type="image/x-icon">
+    <title>Brain Challenge | BRAINROT </title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .game-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 800px;
+            text-align: center;
+            min-height: 600px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 2.5rem;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        h2 {
+            color: #555;
+            margin-bottom: 15px;
+            font-size: 1.8rem;
+        }
+
+        h3 {
+            color: #666;
+            margin-bottom: 10px;
+            font-size: 1.4rem;
+        }
+
+        p {
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            margin: 10px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            font-weight: 600;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 0.9rem;
+        }
+
+        .option-btn {
+            background: white;
+            color: #333;
+            border: 2px solid #e0e0e0;
+            padding: 12px 20px;
+            border-radius: 10px;
+            margin: 8px;
+            width: 100%;
+            text-align: left;
+            transition: all 0.3s ease;
+        }
+
+        .option-btn:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .option-btn.correct {
+            background: #4caf50;
+            color: white;
+            border-color: #4caf50;
+        }
+
+        .option-btn.incorrect {
+            background: #f44336;
+            color: white;
+            border-color: #f44336;
+        }
+
+        .progress-bar {
+            background: #e0e0e0;
+            height: 8px;
+            border-radius: 4px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .score-display {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #667eea;
+            margin: 10px 0;
+        }
+
+        .timer {
+            font-size: 1.1rem;
+            color: #ff6b6b;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .puzzle-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .card {
+            aspect-ratio: 1;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            color: white;
+            transition: transform 0.3s ease;
+            transform-style: preserve-3d;
+        }
+
+        .card.flipped {
+            transform: rotateY(180deg);
+            background: white;
+            color: #333;
+            border: 2px solid #667eea;
+        }
+
+        .card.matched {
+            background: #4caf50;
+            transform: scale(0.95);
+            cursor: default;
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #ff6b6b;
+            animation: confettiFall 1s ease-out;
+        }
+
+        @keyframes confettiFall {
+            0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(500px) rotate(360deg); opacity: 0; }
+        }
+
+        .final-stats {
+            background: #f8f9ff;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            padding: 8px;
+            background: white;
+            border-radius: 8px;
+        }
+
+        .settings-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        label {
+            font-weight: 600;
+            color: #555;
+        }
+
+        input, textarea {
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .options-row {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .custom-questions-list {
+            max-height: 200px;
+            overflow-y: auto;
+            margin: 20px 0;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+        .question-item {
+            background: #f8f9ff;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .question-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .danger-btn {
+            background: #dc3545;
+            color: white;
+        }
+
+        @media (max-width: 600px) {
+            .game-container {
+                padding: 20px;
+                margin: 10px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .btn {
+                padding: 12px 24px;
+                font-size: 1rem;
+            }
+            
+            .puzzle-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 8px;
+            }
+            
+            .options-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <!-- Welcome Screen -->
+        <div id="welcome-screen" class="screen active">
+            <h1>🧠 Brain Challenge</h1>
+            <p>Test your knowledge in the quiz and then solve the puzzle to win!</p>
+            <p>Complete both challenges to achieve the highest score!</p>
+            <div style="display: flex; flex-direction: column; gap: 10px; margin: 20px 0;">
+                <button class="btn" onclick="startGame()">Start Game</button>
+                <button class="btn btn-secondary" onclick="showScreen('settings')">Custom Questions</button>
+            </div>
+        </div>
+
+        <!-- Quiz Screen -->
+        <div id="quiz-screen" class="screen">
+            <h2>Quiz Challenge</h2>
+            <div class="progress-bar">
+                <div id="quiz-progress" class="progress"></div>
+            </div>
+            <div class="score-display">Score: <span id="quiz-score">0</span></div>
+            <h3 id="question-text">Question will appear here</h3>
+            <div id="options-container">
+                <!-- Options will be generated here -->
+            </div>
+        </div>
+
+        <!-- Puzzle Screen -->
+        <div id="puzzle-screen" class="screen">
+            <h2>Memory Puzzle</h2>
+            <div class="timer">Time: <span id="puzzle-timer">0</span>s</div>
+            <div class="puzzle-grid" id="puzzle-grid">
+                <!-- Cards will be generated here -->
+            </div>
+        </div>
+
+        <!-- Settings Screen -->
+        <div id="settings-screen" class="screen">
+            <h2>Custom Questions</h2>
+            <p>Add your own questions to the quiz game!</p>
+            
+            <form id="question-form" class="settings-form">
+                <div class="form-group">
+                    <label for="question-text">Question:</label>
+                    <textarea id="question-text-input" rows="3" placeholder="Enter your question here..." required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Options:</label>
+                    <div class="options-row">
+                        <input type="text" id="option-a" placeholder="Option A" required>
+                        <input type="radio" name="correct-option" value="0" required> Correct
+                    </div>
+                    <div class="options-row">
+                        <input type="text" id="option-b" placeholder="Option B" required>
+                        <input type="radio" name="correct-option" value="1" required> Correct
+                    </div>
+                    <div class="options-row">
+                        <input type="text" id="option-c" placeholder="Option C">
+                        <input type="radio" name="correct-option" value="2"> Correct
+                    </div>
+                    <div class="options-row">
+                        <input type="text" id="option-d" placeholder="Option D">
+                        <input type="radio" name="correct-option" value="3"> Correct
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn">Add Question</button>
+            </form>
+
+            <h3 style="margin-top: 30px;">Your Custom Questions</h3>
+            <div id="custom-questions-list" class="custom-questions-list">
+                <!-- Custom questions will be displayed here -->
+            </div>
+
+            <div style="margin-top: 20px;">
+                <button class="btn btn-secondary" onclick="showScreen('welcome')">Back to Menu</button>
+            </div>
+        </div>
+
+        <!-- Final Screen -->
+        <div id="final-screen" class="screen">
+            <h1>Congratulations! 🎉</h1>
+            <div class="final-stats">
+                <div class="stat-item">
+                    <span>Quiz Score:</span>
+                    <span id="final-quiz-score">0</span>
+                </div>
+                <div class="stat-item">
+                    <span>Puzzle Time:</span>
+                    <span id="final-puzzle-time">0s</span>
+                </div>
+                <div class="stat-item">
+                    <span>Total Score:</span>
+                    <span id="total-score">0</span>
+                </div>
+            </div>
+            <button class="btn" onclick="restartGame()">Play Again</button>
+            <button class="btn btn-secondary" onclick="showScreen('welcome')">Main Menu</button>
+        </div>
+    </div>
+
+    <script>
+        // Game state
+        let gameState = {
+            currentScreen: 'welcome',
+            quiz: {
+                currentQuestion: 0,
+                score: 0,
+                questions: null // Will be loaded from localStorage
+            },
+            puzzle: {
+                cards: [],
+                flippedCards: [],
+                matchedPairs: 0,
+                startTime: 0,
+                timer: null,
+                elapsedTime: 0
+            }
+        };
+
+        // Default questions
+        const defaultQuestions = [
+            {
+                question: "What is the capital of France?",
+                options: ["London", "Berlin", "Paris", "Madrid"],
+                correct: 2
+            },
+            {
+                question: "Which planet is known as the Red Planet?",
+                options: ["Venus", "Mars", "Jupiter", "Saturn"],
+                correct: 1
+            },
+            {
+                question: "What is the largest ocean on Earth?",
+                options: ["Atlantic", "Indian", "Arctic", "Pacific"],
+                correct: 3
+            },
+            {
+                question: "Who painted the Mona Lisa?",
+                options: ["Van Gogh", "Picasso", "Da Vinci", "Michelangelo"],
+                correct: 2
+            },
+            {
+                question: "What is the chemical symbol for gold?",
+                options: ["Go", "Gd", "Au", "Ag"],
+                correct: 2
+            }
+        ];
+
+        // DOM Elements
+        const screens = {
+            welcome: document.getElementById('welcome-screen'),
+            quiz: document.getElementById('quiz-screen'),
+            puzzle: document.getElementById('puzzle-screen'),
+            settings: document.getElementById('settings-screen'),
+            final: document.getElementById('final-screen')
+        };
+
+        // Initialize game
+        function initializeGame() {
+            // Load custom questions from localStorage
+            loadQuestions();
+            renderCustomQuestions();
+        }
+
+        function loadQuestions() {
+            const savedQuestions = localStorage.getItem('customQuestions');
+            const customQuestions = savedQuestions ? JSON.parse(savedQuestions) : [];
+            
+            // Combine default and custom questions
+            gameState.quiz.questions = [...defaultQuestions, ...customQuestions];
+        }
+
+        function startGame() {
+            showScreen('quiz');
+            loadQuestion();
+        }
+
+        function showScreen(screenName) {
+            // Hide all screens
+            Object.values(screens).forEach(screen => screen.classList.remove('active'));
+            // Show the requested screen
+            screens[screenName].classList.add('active');
+            gameState.currentScreen = screenName;
+
+            if (screenName === 'puzzle') {
+                initializePuzzle();
+            } else if (screenName === 'settings') {
+                renderCustomQuestions();
+            }
+        }
+
+        // Quiz functions
+        function loadQuestion() {
+            const question = gameState.quiz.questions[gameState.quiz.currentQuestion];
+            document.getElementById('question-text').textContent = question.question;
+            document.getElementById('quiz-score').textContent = gameState.quiz.score;
+            
+            // Update progress
+            const progress = ((gameState.quiz.currentQuestion + 1) / gameState.quiz.questions.length) * 100;
+            document.getElementById('quiz-progress').style.width = progress + '%';
+
+            // Create options
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+            
+            question.options.forEach((option, index) => {
+                if (option) { // Only create options that exist
+                    const button = document.createElement('button');
+                    button.className = 'option-btn';
+                    button.textContent = String.fromCharCode(65 + index) + '. ' + option;
+                    button.onclick = () => checkAnswer(index);
+                    optionsContainer.appendChild(button);
+                }
+            });
+        }
+
+        function checkAnswer(selectedIndex) {
+            const question = gameState.quiz.questions[gameState.quiz.currentQuestion];
+            const options = document.querySelectorAll('.option-btn');
+            
+            // Disable all buttons
+            options.forEach(btn => btn.disabled = true);
+            
+            // Mark correct/incorrect
+            options[selectedIndex].classList.add(selectedIndex === question.correct ? 'correct' : 'incorrect');
+            if (selectedIndex !== question.correct) {
+                options[question.correct].classList.add('correct');
+            }
+            
+            // Update score
+            if (selectedIndex === question.correct) {
+                gameState.quiz.score += 10;
+            }
+            
+            // Move to next question after delay
+            setTimeout(() => {
+                gameState.quiz.currentQuestion++;
+                if (gameState.quiz.currentQuestion < gameState.quiz.questions.length) {
+                    loadQuestion();
+                } else {
+                    showScreen('puzzle');
+                }
+            }, 1500);
+        }
+
+        // Settings functions
+        document.getElementById('question-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const questionText = document.getElementById('question-text-input').value.trim();
+            const optionA = document.getElementById('option-a').value.trim();
+            const optionB = document.getElementById('option-b').value.trim();
+            const optionC = document.getElementById('option-c').value.trim();
+            const optionD = document.getElementById('option-d').value.trim();
+            const correctOption = document.querySelector('input[name="correct-option"]:checked').value;
+            
+            if (!questionText || !optionA || !optionB) {
+                alert('Please provide at least a question and two options!');
+                return;
+            }
+            
+            const newQuestion = {
+                question: questionText,
+                options: [optionA, optionB, optionC || '', optionD || ''].filter(opt => opt),
+                correct: parseInt(correctOption)
+            };
+            
+            // Save to localStorage
+            const savedQuestions = localStorage.getItem('customQuestions');
+            const customQuestions = savedQuestions ? JSON.parse(savedQuestions) : [];
+            customQuestions.push(newQuestion);
+            localStorage.setItem('customQuestions', JSON.stringify(customQuestions));
+            
+            // Reload questions and update UI
+            loadQuestions();
+            renderCustomQuestions();
+            
+            // Reset form
+            this.reset();
+            alert('Question added successfully!');
+        });
+
+        function renderCustomQuestions() {
+            const container = document.getElementById('custom-questions-list');
+            const savedQuestions = localStorage.getItem('customQuestions');
+            const customQuestions = savedQuestions ? JSON.parse(savedQuestions) : [];
+            
+            if (customQuestions.length === 0) {
+                container.innerHTML = '<p style="color: #666; text-align: center;">No custom questions yet. Add some above!</p>';
+                return;
+            }
+            
+            container.innerHTML = customQuestions.map((q, index) => `
+                <div class="question-item">
+                    <strong>${q.question}</strong>
+                    <div style="margin-top: 8px;">
+                        ${q.options.map((opt, i) => `
+                            <div style="padding: 2px 0; color: ${i === q.correct ? '#4caf50' : '#666'};">
+                                ${String.fromCharCode(65 + i)}. ${opt} ${i === q.correct ? '✓' : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="question-footer">
+                        <small>${q.options.length} options</small>
+                        <button class="btn btn-small danger-btn" onclick="deleteQuestion(${index})">
+                            Delete
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function deleteQuestion(index) {
+            if (confirm('Are you sure you want to delete this question?')) {
+                const savedQuestions = localStorage.getItem('customQuestions');
+                const customQuestions = savedQuestions ? JSON.parse(savedQuestions) : [];
+                customQuestions.splice(index, 1);
+                localStorage.setItem('customQuestions', JSON.stringify(customQuestions));
+                
+                loadQuestions();
+                renderCustomQuestions();
+            }
+        }
+
+        // Puzzle functions
+        function initializePuzzle() {
+            const symbols = ['🌟', '🚀', '🎯', '🎨', '🎭', '🎪', '🎮', '🏆'];
+            gameState.puzzle.cards = [...symbols, ...symbols].sort(() => Math.random() - 0.5);
+            gameState.puzzle.flippedCards = [];
+            gameState.puzzle.matchedPairs = 0;
+            gameState.puzzle.startTime = Date.now();
+            gameState.puzzle.elapsedTime = 0;
+            
+            // Start timer
+            if (gameState.puzzle.timer) {
+                clearInterval(gameState.puzzle.timer);
+            }
+            gameState.puzzle.timer = setInterval(updateTimer, 1000);
+            
+            renderPuzzle();
+        }
+
+        function renderPuzzle() {
+            const grid = document.getElementById('puzzle-grid');
+            grid.innerHTML = '';
+            
+            gameState.puzzle.cards.forEach((symbol, index) => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.dataset.index = index;
+                card.dataset.symbol = symbol;
+                card.innerHTML = '?';
+                
+                card.onclick = () => flipCard(index);
+                grid.appendChild(card);
+            });
+        }
+
+        function flipCard(index) {
+            const card = document.querySelector(`.card[data-index="${index}"]`);
+            
+            // Don't flip if already flipped or matched
+            if (card.classList.contains('flipped') || card.classList.contains('matched') || 
+                gameState.puzzle.flippedCards.length >= 2) {
+                return;
+            }
+            
+            // Flip the card
+            card.classList.add('flipped');
+            card.textContent = gameState.puzzle.cards[index];
+            gameState.puzzle.flippedCards.push(index);
+            
+            // Check for match if two cards are flipped
+            if (gameState.puzzle.flippedCards.length === 2) {
+                checkMatch();
+            }
+        }
+
+        function checkMatch() {
+            const [index1, index2] = gameState.puzzle.flippedCards;
+            const card1 = document.querySelector(`.card[data-index="${index1}"]`);
+            const card2 = document.querySelector(`.card[data-index="${index2}"]`);
+            
+            if (gameState.puzzle.cards[index1] === gameState.puzzle.cards[index2]) {
+                // Match found
+                card1.classList.add('matched');
+                card2.classList.add('matched');
+                gameState.puzzle.matchedPairs++;
+                
+                // Check if puzzle is complete
+                if (gameState.puzzle.matchedPairs === 8) {
+                    setTimeout(completePuzzle, 500);
+                }
+            } else {
+                // No match - flip back
+                setTimeout(() => {
+                    card1.classList.remove('flipped');
+                    card2.classList.remove('flipped');
+                    card1.textContent = '?';
+                    card2.textContent = '?';
+                }, 1000);
+            }
+            
+            // Reset flipped cards
+            setTimeout(() => {
+                gameState.puzzle.flippedCards = [];
+            }, 1000);
+        }
+
+        function updateTimer() {
+            gameState.puzzle.elapsedTime = Math.floor((Date.now() - gameState.puzzle.startTime) / 1000);
+            document.getElementById('puzzle-timer').textContent = gameState.puzzle.elapsedTime;
+        }
+
+        function completePuzzle() {
+            clearInterval(gameState.puzzle.timer);
+            
+            // Create confetti effect
+            createConfetti();
+            
+            setTimeout(() => {
+                showFinalScreen();
+            }, 2000);
+        }
+
+        function createConfetti() {
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.background = `hsl(${Math.random() * 360}, 100%, 50%)`;
+                confetti.style.animationDelay = Math.random() * 1 + 's';
+                document.body.appendChild(confetti);
+                
+                // Remove after animation
+                setTimeout(() => confetti.remove(), 1000);
+            }
+        }
+
+        function showFinalScreen() {
+            document.getElementById('final-quiz-score').textContent = gameState.quiz.score;
+            document.getElementById('final-puzzle-time').textContent = gameState.puzzle.elapsedTime + 's';
+            
+            // Calculate total score (quiz score + bonus for fast puzzle completion)
+            const timeBonus = Math.max(0, 300 - gameState.puzzle.elapsedTime);
+            const totalScore = gameState.quiz.score + timeBonus;
+            document.getElementById('total-score').textContent = totalScore;
+            
+            showScreen('final');
+        }
+
+        function restartGame() {
+            // Reset game state
+            gameState.quiz.currentQuestion = 0;
+            gameState.quiz.score = 0;
+            gameState.puzzle.matchedPairs = 0;
+            gameState.puzzle.elapsedTime = 0;
+            
+            if (gameState.puzzle.timer) {
+                clearInterval(gameState.puzzle.timer);
+            }
+            
+            showScreen('welcome');
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', initializeGame);
+    </script>
+</body>
+</html>

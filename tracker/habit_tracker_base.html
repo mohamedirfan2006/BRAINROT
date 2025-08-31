@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="../Images/favicon.png" type="image/x-icon">
+    <title>Habit Quest - Personal Progress Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --secondary: #8b5cf6;
+            --accent: #06b6d4;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: white;
+            min-height: 100vh;
+            margin: 0;
+            border-radius: 0;
+        }
+        
+        .app-container {
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            overflow: hidden;
+            margin: 0;
+        }
+        
+        .game-header {
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 20px;
+            position: relative;
+            margin: 20px;
+            border-radius: 10px;
+        }
+
+
+    
+    .navigation-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 15px;
+      padding: 20px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      border: 2px solid transparent;
+      color: white;
+      text-decoration: none;
+      display: block;
+    }
+    
+    .navigation-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 15px 35px rgba(102, 126, 234, 0.3);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+    
+    .navigation-icon {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      color: white;
+      opacity: 0.9;
+    }
+    
+    .habit-card {
+      transition: all 0.3s ease;
+      border-left: 4px solid var(--primary);
+    }
+    
+    .habit-card.completed {
+      border-left: 4px solid var(--success);
+      background: rgba(16, 185, 129, 0.1);
+    }
+    
+    .progress-ring {
+      transform: rotate(-90deg);
+    }
+    
+    .streak-fire {
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+    
+    .confetti {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background: var(--warning);
+      opacity: 0.8;
+      border-radius: 0;
+    }
+    
+    .glow {
+      box-shadow: 0 0 20px rgba(96, 165, 250, 0.5);
+    }
+    
+    .stat-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-radius: 15px;
+      padding: 20px;
+    }
+    
+    .progress-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+      margin: 0 2px;
+    }
+    
+    .chart-container {
+      background: white;
+      border-radius: 15px;
+      padding: 20px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .timeline-item {
+      position: relative;
+      padding-left: 30px;
+      margin-bottom: 20px;
+    }
+    
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 2px;
+      height: 100%;
+      background: var(--primary);
+    }
+    
+    .timeline-dot {
+      position: absolute;
+      left: -6px;
+      top: 5px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--primary);
+      border: 3px solid white;
+    }
+    
+    .section-divider {
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.3), transparent);
+      margin: 30px 0;
+      border: none;
+    }
+    
+    /* Game tab styles */
+    .game-tab-btn {
+      transition: all 0.3s ease;
+    }
+    
+    .game-break-game {
+      min-height: 400px;
+    }
+    
+    @media (max-width: 768px) {
+      .app-container {
+        margin: 10px;
+        border-radius: 15px;
+      }
+      
+      .navigation-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .main-content {
+        grid-template-columns: 1fr;
+      }
+    }
+
+
+
+
+
+
+
+        
+        .habit-card {
+            transition: all 0.3s ease;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .habit-card.completed {
+            border-left: 4px solid var(--success);
+            background: rgba(16, 185, 129, 0.1);
+        }
+        
+        .progress-ring {
+            transform: rotate(-90deg);
+        }
+        
+        .streak-fire {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: var(--warning);
+            opacity: 0.8;
+            border-radius: 0;
+        }
+        
+        .glow {
+            box-shadow: 0 0 20px rgba(96, 165, 250, 0.5);
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 20px;
+        }
+        
+        .progress-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin: 0 2px;
+        }
+        
+        .chart-container {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .timeline-item {
+            position: relative;
+            padding-left: 30px;
+            margin-bottom: 20px;
+        }
+        
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 2px;
+            height: 100%;
+            background: var(--primary);
+        }
+        
+        .timeline-dot {
+            position: absolute;
+            left: -6px;
+            top: 5px;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--primary);
+            border: 3px solid white;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-start justify-center p-0 m-0">
+
+
+    <div class="app-container w-full m-0">
+        <!-- Game Header -->
+        <div class="game-header flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-bold">Habit Quest</h1>
+                <p class="text-blue-100">Track your personal growth journey</p>
+            </div>
+
+            <div class="flex items-center space-x-6">
+                <div class="text-center">
+                    <div class="text-2xl font-bold" id="total-points">0</div>
+                    <div class="text-sm">Total Points</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl font-bold" id="current-streak">0</div>
+                    <div class="text-sm">Day Streak</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl font-bold" id="completion-rate">0%</div>
+                    <div class="text-sm">Completion Rate</div>
+                </div>
+            </div>
+        </div>
+
+
+
+         <section class="mb-8">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center justify-center">
+          <i class="fas fa-compass mr-3 text-purple-500"></i>
+          Quick Access
+        </h2>
+        <div class="navigation-grid grid md:grid-cols-3 gap-6 px-5">
+          <a href="daily_prog_trial.html" class="navigation-card ">
+            <div class="text-center">
+              <i class="fas fa-chart-line navigation-icon"></i>
+              <h3 class="text-xl font-semibold mb-2">Daily Progress</h3>
+              <p class="text-sm opacity-90">Track tasks, hours studied, and daily notes</p>
+            </div>
+          </a>
+          <div class="navigation-card" onclick="scrollToSection('emotion-tracking')"> <a href="emotion.html">
+            <div class="text-center">
+              <i class="fas fa-tasks navigation-icon"></i>
+              <h3 class="text-xl font-semibold mb-2">Emotion Tracker</h3>
+              <p class="text-sm opacity-90">Asses your daily emotions,intensity and energy levels</p>
+            </div>
+            </a>
+          </div>
+          <div class="navigation-card" onclick="scrollToSection('game-break')"><a href="../index.html#game">
+            <div class="text-center">
+              <i class="fas fa-gamepad navigation-icon"></i>
+              <h3 class="text-xl font-semibold mb-2">Game Break</h3>
+              <p class="text-sm opacity-90">Play fun games to relax and challenge yourself</p>
+            </div>
+            </a>
+          </div>
+        </div>
+      </section>
+
+
+
+
+
+
+        <div class="grid md:grid-cols-3 gap-6 p-6">
+            <!-- Left Panel - Habit List -->
+            <div class="md:col-span-2 space-y-6">
+                             
+                <div class="grid gap-4" id="habits-container">
+                    <!-- Habit cards will be generated here -->
+                </div>
+                
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <h3 class="text-lg font-semibold mb-3">Add New Habit</h3>
+                    <div class="flex gap-2">
+                        <input type="text" id="new-habit" placeholder="Enter habit name" 
+                               class="flex-1 p-2 border rounded-lg focus:ring-2 focus:ring-purple-300">
+                        <button onclick="addHabit()" class="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Weekly Progress -->
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <h3 class="text-xl font-bold mb-4 flex items-center">
+                        <i class="fas fa-calendar-week mr-2 text-blue-500"></i>
+                        Weekly Progress Overview
+                    </h3>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="chart-container">
+                            <canvas id="weeklyCompletionChart"></canvas>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="stat-card">
+                                <div class="text-3xl font-bold" id="weekly-points">0</div>
+                                <div class="text-sm">Weekly Points</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="text-3xl font-bold" id="weekly-completed">0</div>
+                                <div class="text-sm">Habits Completed This Week</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="text-3xl font-bold" id="weekly-streak">0</div>
+                                <div class="text-sm">Current Weekly Streak</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel - Progress & Analytics -->
+            <div class="space-y-6">
+                <!-- Daily Progress -->
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <h3 class="text-lg font-semibold mb-3">Today's Progress</h3>
+                    <div class="relative w-full h-4 bg-gray-200 rounded-full mb-2">
+                        <div id="progress-bar" class="absolute top-0 left-0 h-full bg-green-400 rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                    <div class="text-sm text-gray-600" id="progress-text">0/0 habits completed</div>
+                    <div class="mt-3 text-sm">
+                        <span id="today-points">0</span> points earned today
+                    </div>
+                </div>
+
+                <!-- Progress Timeline -->
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <h3 class="text-lg font-semibold mb-3 flex items-center">
+                        <i class="fas fa-history mr-2 text-purple-500"></i>
+                        Recent Progress Timeline
+                    </h3>
+                    <div id="progress-timeline" class="space-y-3">
+                        <!-- Timeline items will be generated here -->
+                    </div>
+                </div>
+
+                <!-- Daily Comparison -->
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <h3 class="text-lg font-semibold mb-3 flex items-center">
+                        <i class="fas fa-chart-line mr-2 text-green-500"></i>
+                        Daily Performance Comparison
+                    </h3>
+                    <div class="chart-container">
+                        <canvas id="dailyComparisonChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Achievement Badges -->
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <h3 class="text-lg font-semibold mb-3 flex items-center">
+                        <i class="fas fa-medal mr-2 text-yellow-500"></i>
+                        Your Achievements
+                    </h3>
+                    <div class="grid grid-cols-3 gap-3" id="achievements-container">
+                        <!-- Achievement badges will be generated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize with sample data
+        let userData = {
+            points: 0,
+            streak: 0,
+            dailyPoints: 0,
+            habits: [
+                { id: 1, name: "Morning Meditation", points: 15, completed: false, streak: 0 },
+                { id: 2, name: "30-min Exercise", points: 20, completed: false, streak: 3 },
+                { id: 3, name: "Read 10 pages", points: 10, completed: false, streak: 5 },
+                { id: 4, name: "Drink 8 glasses water", points: 12, completed: false, streak: 2 }
+            ],
+            history: [
+                { date: '2024-01-10', points: 57, completed: 4, total: 4, streak: 3 },
+                { date: '2024-01-09', points: 45, completed: 3, total: 4, streak: 2 },
+                { date: '2024-01-08', points: 57, completed: 4, total: 4, streak: 1 },
+                { date: '2024-01-07', points: 0, completed: 0, total: 4, streak: 0 },
+                { date: '2024-01-06', points: 42, completed: 3, total: 4, streak: 0 },
+                { date: '2024-01-05', points: 57, completed: 4, total: 4, streak: 2 },
+                { date: '2024-01-04', points: 57, completed: 4, total: 4, streak: 1 }
+            ],
+            achievements: [
+                { id: 1, name: "First Habit", earned: true, icon: "star", color: "text-yellow-500" },
+                { id: 2, name: "3-Day Streak", earned: true, icon: "fire", color: "text-orange-500" },
+                { id: 3, name: "Perfect Week", earned: false, icon: "trophy", color: "text-purple-500" },
+                { id: 4, name: "100 Points", earned: false, icon: "award", color: "text-blue-500" },
+                { id: 5, name: "Early Bird", earned: true, icon: "sun", color: "text-yellow-400" },
+                { id: 6, name: "Bookworm", earned: true, icon: "book", color: "text-green-500" }
+            ]
+        };
+
+        let charts = {};
+        const currentDate = new Date().toLocaleDateString('en-US', { 
+            weekday: 'long', 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+        });
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelector('h2').textContent = `Today's Habits - ${currentDate}`;
+            loadUserData();
+            renderHabits();
+            updateStats();
+            renderTimeline();
+            renderAchievements();
+            initCharts();
+        });
+
+        // Load user data from localStorage
+        function loadUserData() {
+            const saved = localStorage.getItem('habitTrackerData');
+            if (saved) {
+                userData = JSON.parse(saved);
+            }
+        }
+
+        // Save user data to localStorage
+        function saveUserData() {
+            localStorage.setItem('habitTrackerData', JSON.stringify(userData));
+        }
+
+        // Render habit cards
+        function renderHabits() {
+            const container = document.getElementById('habits-container');
+            container.innerHTML = '';
+            
+            userData.habits.forEach(habit => {
+                const card = document.createElement('div');
+                card.className = `habit-card bg-white p-4 rounded-lg shadow flex justify-between items-center ${habit.completed ? 'completed' : ''}`;
+                
+                card.innerHTML = `
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center mr-4">
+                            ${habit.streak > 0 ? `<span class="streak-fire text-orange-500 font-bold">${habit.streak}</span>` : ''}
+                        </div>
+                        <div>
+                            <h4 class="font-semibold">${habit.name}</h4>
+                            <p class="text-sm text-gray-600">${habit.points} points • ${habit.streak} day streak</p>
+                        </div>
+                    </div>
+                    <button onclick="completeHabit(${habit.id})" 
+                            class="px-4 py-2 rounded-lg ${habit.completed ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-700'}">
+                        ${habit.completed ? '<i class="fas fa-check"></i> Completed' : 'Complete'}
+                    </button>
+                `;
+                
+                container.appendChild(card);
+            });
+        }
+
+        // Complete a habit
+        function completeHabit(habitId) {
+            const habit = userData.habits.find(h => h.id === habitId);
+            if (habit && !habit.completed) {
+                habit.completed = true;
+                habit.streak++;
+                userData.points += habit.points;
+                userData.dailyPoints += habit.points;
+                
+                // Check if all habits are completed for streak
+                const allCompleted = userData.habits.every(h => h.completed);
+                if (allCompleted) {
+                    userData.streak++;
+                    // Bonus points for completing all habits
+                    const bonusPoints = 50;
+                    userData.points += bonusPoints;
+                    userData.dailyPoints += bonusPoints;
+                    createConfetti();
+                    
+                    // Add achievement if this is the first perfect day
+                    if (!userData.achievements.find(a => a.name === "Perfect Day")) {
+                        userData.achievements.push({
+                            id: Date.now(),
+                            name: "Perfect Day",
+                            earned: true,
+                            icon: "check-circle",
+                            color: "text-green-500"
+                        });
+                    }
+                }
+                
+                saveUserData();
+                renderHabits();
+                updateStats();
+                renderTimeline();
+                updateCharts();
+                
+                // Visual feedback
+                const button = event.target;
+                button.classList.add('glow');
+                setTimeout(() => button.classList.remove('glow'), 1000);
+            }
+        }
+
+        // Add a new habit
+        function addHabit() {
+            const input = document.getElementById('new-habit');
+            const name = input.value.trim();
+            
+            if (name) {
+                const newHabit = {
+                    id: Date.now(),
+                    name: name,
+                    points: 10, // Default points
+                    completed: false,
+                    streak: 0
+                };
+                
+                userData.habits.push(newHabit);
+                saveUserData();
+                renderHabits();
+                updateStats();
+                input.value = '';
+            }
+        }
+
+        // Update statistics and progress
+        function updateStats() {
+            const completed = userData.habits.filter(h => h.completed).length;
+            const total = userData.habits.length;
+            const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+            
+            document.getElementById('total-points').textContent = userData.points;
+            document.getElementById('current-streak').textContent = userData.streak;
+            document.getElementById('completion-rate').textContent = `${percentage}%`;
+            document.getElementById('today-points').textContent = userData.dailyPoints;
+            
+            // Update progress bar
+            document.getElementById('progress-bar').style.width = `${percentage}%`;
+            document.getElementById('progress-text').textContent = `${completed}/${total} habits completed`;
+            
+            // Update weekly stats
+            const weeklyData = userData.history.slice(0, 7);
+            const weeklyPoints = weeklyData.reduce((sum, day) => sum + day.points, 0) + userData.dailyPoints;
+            const weeklyCompleted = weeklyData.reduce((sum, day) => sum + day.completed, 0) + completed;
+            
+            document.getElementById('weekly-points').textContent = weeklyPoints;
+            document.getElementById('weekly-completed').textContent = weeklyCompleted;
+            document.getElementById('weekly-streak').textContent = userData.streak;
+        }
+
+        // Render progress timeline
+        function renderTimeline() {
+            const container = document.getElementById('progress-timeline');
+            container.innerHTML = '';
+            
+            // Show last 5 days of progress
+            userData.history.slice(0, 5).forEach(day => {
+                const date = new Date(day.date);
+                const formattedDate = date.toLocaleDateString('en-US', { 
+                    weekday: 'short', 
+                    month: 'short', 
+                    day: 'numeric' 
+                });
+                
+                const timelineItem = document.createElement('div');
+                timelineItem.className = 'timeline-item';
+                
+                timelineItem.innerHTML = `
+                    <div class="timeline-dot"></div>
+                    <div class="text-sm font-semibold">${formattedDate}</div>
+                    <div class="text-xs text-gray-600">
+                        ${day.completed}/${day.total} habits • ${day.points} points
+                    </div>
+                    <div class="mt-1">
+                        ${Array.from({length: day.total}, (_, i) => 
+                            `<span class="progress-dot ${i < day.completed ? 'bg-green-400' : 'bg-gray-300'}"></span>`
+                        ).join('')}
+                    </div>
+                `;
+                
+                container.appendChild(timelineItem);
+            });
+        }
+
+        // Render achievement badges
+        function renderAchievements() {
+            const container = document.getElementById('achievements-container');
+            container.innerHTML = '';
+            
+            userData.achievements.forEach(achievement => {
+                const badge = document.createElement('div');
+                badge.className = 'text-center';
+                
+                badge.innerHTML = `
+                    <div class="w-12 h-12 mx-auto rounded-full ${achievement.earned ? 'bg-gray-100' : 'bg-gray-200 opacity-50'} flex items-center justify-center mb-1">
+                        <i class="fas fa-${achievement.icon} text-xl ${achievement.earned ? achievement.color : 'text-gray-400'}"></i>
+                    </div>
+                    <div class="text-xs font-medium ${achievement.earned ? 'text-gray-800' : 'text-gray-400'}">${achievement.name}</div>
+                `;
+                
+                container.appendChild(badge);
+            });
+        }
+
+        // Initialize charts
+        function initCharts() {
+            // Weekly Completion Chart
+            const weeklyCtx = document.getElementById('weeklyCompletionChart').getContext('2d');
+            charts.weeklyCompletion = new Chart(weeklyCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Completed', 'Remaining'],
+                    datasets: [{
+                        data: [0, 100],
+                        backgroundColor: ['#10b981', '#e5e7eb'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    cutout: '70%',
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+
+            // Daily Comparison Chart
+            const dailyCtx = document.getElementById('dailyComparisonChart').getContext('2d');
+            charts.dailyComparison = new Chart(dailyCtx, {
+                type: 'bar',
+                data: {
+                    labels: userData.history.slice(0, 7).reverse().map(day => 
+                        new Date(day.date).toLocaleDateString('en-US', { weekday: 'short' })
+                    ),
+                    datasets: [{
+                        label: 'Points Earned',
+                        data: userData.history.slice(0, 7).reverse().map(day => day.points),
+                        backgroundColor: '#6366f1',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                drawBorder: false
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+
+            updateCharts();
+        }
+
+        // Update charts with current data
+        function updateCharts() {
+            const completed = userData.habits.filter(h => h.completed).length;
+            const total = userData.habits.length;
+            
+            // Update weekly completion chart
+            if (charts.weeklyCompletion) {
+                charts.weeklyCompletion.data.datasets[0].data = [completed, total - completed];
+                charts.weeklyCompletion.update();
+            }
+            
+            // Update daily comparison chart (add today's data)
+            if (charts.dailyComparison) {
+                const todayData = [...userData.history.slice(0, 6).reverse()];
+                todayData.push({
+                    date: new Date().toISOString().split('T')[0],
+                    points: userData.dailyPoints,
+                    completed: completed,
+                    total: total
+                });
+                
+                charts.dailyComparison.data.labels = todayData.map(day => 
+                    new Date(day.date).toLocaleDateString('en-US', { weekday: 'short' })
+                );
+                charts.dailyComparison.data.datasets[0].data = todayData.map(day => day.points);
+                charts.dailyComparison.update();
+            }
+        }
+
+        // Create celebration confetti
+        function createConfetti() {
+            for (let i = 0; i < 30; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.top = '-10px';
+                confetti.style.backgroundColor = ['#FFD700', '#C0C0C0', '#CD7F32', '#FF6B6B', '#4ECDC4'][Math.floor(Math.random() * 5)];
+                confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+                
+                document.body.appendChild(confetti);
+                
+                const animation = confetti.animate([
+                    { top: '-10px', opacity: 1 },
+                    { top: '100vh', opacity: 0 }
+                ], {
+                    duration: 2000 + Math.random() * 3000,
+                    easing: 'cubic-bezier(0.1, 0.8, 0.1, 1)'
+                });
+                
+                animation.onfinish = () => confetti.remove();
+            }
+        }
+
+        // Simulate end of day to save progress to history
+        function simulateEndOfDay() {
+            const completed = userData.habits.filter(h => h.completed).length;
+            const total = userData.habits.length;
+            
+            userData.history.unshift({
+                date: new Date().toISOString().split('T')[0],
+                points: userData.dailyPoints,
+                completed: completed,
+                total: total,
+                streak: userData.streak
+            });
+            
+            // Reset daily points and habit completion
+            userData.dailyPoints = 0;
+            userData.habits.forEach(habit => {
+                habit.completed = false;
+            });
+            
+            saveUserData();
+            renderHabits();
+            updateStats();
+            renderTimeline();
+            updateCharts();
+        }
+
+        // Add end of day button for testing
+        document.body.innerHTML += `
+            <div class="fixed bottom-4 right-4">
+                <button onclick="simulateEndOfDay()" class="bg-red-500 text-white px-4 py-2 rounded-lg text-sm">
+                    Simulate End of Day
+                </button>
+            </div>
+        `;
+    </script>
+</body>
+</html>
+
